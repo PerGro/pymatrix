@@ -1,10 +1,14 @@
+# -*- coding: UTF-8 -*-
+
 from .matrix import Matrix
 from .version import version as __version__
 from .operation import *
 from .specialmatrix import *
 from .abnormalConditions import *
 
-__all__ = ['matrix', 'abnormalConditions', '__version__', 'operation', 'specialmatrix']
+__all__ = ['matrix', 'abnormalConditions', '__version__', 'operation', 'specialmatrix', 'Matrix', 'Spmatrix',
+           'Operation']
+
 
 '''
 看源代码的话请直接移步到其他文件吧LOL

@@ -1,15 +1,33 @@
 from .abnormalConditions import *
+import copy
 
 '''
-每一个Matrix对象都会有自己“专属”的matrix，使用self.matrix便可查看他，或直接打印对象本身查看矩阵
+每一个Matrix对象都会有自己“专属”的matrix，使用self.matrix便可查看他，或直接打印对象本身查看矩阵。
 在使用时应当创建一个Matrix对象，保证其余模块能顺利工作。
-考虑到numpy的矩阵存储格式，以及它们不应该被改变（维度或是列数），因此所有matrix都是一个元组，这或许在将来可能与numpy对接时提供便利
+考虑到numpy的矩阵存储格式，以及它们不应该被改变（维度或是列数），因此所有matrix都是一个元组。
 '''
 
 
 class Matrix:
-    def __init__(self):
-        self.matrix = None
+
+    """
+    这个类是整个库的核心，所有其他模块都多少是依赖于这个类的。
+    """
+
+    def __init__(self, num_list=None):
+        if num_list and isinstance(num_list, list):
+            self.matrix = self.get_matrix(num_list)
+        elif isinstance(num_list, list) is False and num_list is not None:
+            self.matrix = self.get_matrix([[num_list]])
+        else:
+            self.matrix = None
+
+    '''
+    直接获取矩阵长度（维度）
+    '''
+
+    def __len__(self):
+        return len(self.matrix)
 
     '''
     当你希望打印出一个正常点，好看点的矩阵视图时就用它吧。
@@ -37,7 +55,10 @@ class Matrix:
 
     def __add__(self, other):
         if isinstance(other, Matrix) is False:
-            raise MatrixTypeError()
+            for i in range(len(self)):
+                for j in range(len(self.matrix[0])):
+                    self.matrix[i][j] += other
+            return self
         if self.__judge_dimension_add(other) is False:
             raise MatrixSizeError()
         temp = Matrix()
@@ -58,7 +79,10 @@ class Matrix:
 
     def __sub__(self, other):
         if isinstance(other, Matrix) is False:
-            raise MatrixTypeError()
+            for i in range(len(self)):
+                for j in range(len(self.matrix[0])):
+                    self.matrix[i][j] -= other
+            return self
         if self.__judge_dimension_add(other) is False:
             raise MatrixSizeError()
         temp = Matrix()
@@ -78,29 +102,34 @@ class Matrix:
         return temp
 
     def __mul__(self, other):
-        if isinstance(other, Matrix) is False and isinstance(other, int) or isinstance(other, float):
-            for i in range(len(self.matrix)):
+        if isinstance(other, Matrix) is False:
+            for i in range(len(self)):
                 for n in range(len(self.matrix[0])):
                     self.matrix[i][n] *= other
+            return self
         else:
-            raise SubTypeError('Matrix or int or float')
-        if self.__judge_dimension_add(other) is False:
-            raise MatrixSizeError()
-        temp = Matrix()
-        res = []
-        if isinstance(self.matrix[0], int):
+            if self.__judge_dimension_add(other) is False:
+                raise MatrixSizeError()
+            lens = len(self.matrix[0])
+            temp = Matrix()
+            res = []
             for i in range(len(self.matrix)):
-                res.append(self.matrix[i] + other.matrix[i])
+                temp_list = []
+                for n in range(lens):
+                    temp_list.append(self.matrix[i][n] * other.matrix[i][n])
+                res.append(temp_list)
             temp.matrix = tuple(res)
             return temp
-        lens = len(self.matrix[0])
-        for i in range(len(self.matrix)):
-            temp_list = []
-            for n in range(lens):
-                temp_list.append(self.matrix[i][n] * other.matrix[i][n])
-            res.append(temp_list)
-        temp.matrix = tuple(res)
-        return temp
+        # if isinstance(self.matrix[0], int) or isinstance(self.matrix[0], float):
+        #     for i in range(len(self.matrix)):
+        #         res.append(self.matrix[i] + other.matrix[i])
+        #     temp.matrix = tuple(res)
+        #     return temp
+        # if isinstance(other, int) or isinstance(other, float):
+        #     for i in self:
+        #         print('i: ', i)
+        #         res.append(i * other)
+        #     return res
 
     '''
     当你尝试去迭代一个Matrix对象时，这个对象的矩阵会被“展开”，然后按照从上到下，从左至右依次迭代
@@ -158,8 +187,8 @@ class Matrix:
     版本V1.0.0：这个方法还存在一些逻辑上的问题，暂时还没有去修改，但就实际测试来看问题不大
     '''
 
-    def square(self, n, num_list=None, full=False):
-        if num_list and full is None:
+    def square(self, n, num_list=None, full=None):
+        if num_list is None and full is None:
             raise SubTypeError('list or int')
         if isinstance(num_list, list) is False and num_list is not None:
             raise SubTypeError('list')
@@ -167,7 +196,7 @@ class Matrix:
             raise SubTypeError('int')
         if isinstance(n, int) is False:
             raise SubTypeError('int')
-        if full and num_list is None:
+        if full is not None and num_list is None:
             self.full(n, n, full)
         else:
             if ~(len(num_list) % n):
@@ -183,7 +212,7 @@ class Matrix:
             for i in range(n):
                 res.append(num_list[(i * n): (i + 1) * n])
             self.matrix = tuple(res)
-        return self.matrix
+        return self
 
     '''
     获取矩阵的方法还是使用最原始的方法
@@ -218,6 +247,37 @@ class Matrix:
         self.matrix = tuple(res)
         return self.matrix
 
+    def loc(self, row, col):
+        return self.matrix[row][col]
+
+    def locr(self, row):
+        return self.matrix[row]
+
+    def locl(self, col):
+        res = []
+        for i in range(len(self.matrix)):
+            res.append(self.matrix[i][col])
+        return res
+
+    def cut(self, cut_row, cut_col=None):
+        res = self.copy
+        if isinstance(cut_row, list):
+            begin_r = cut_row[0]
+            end_r = cut_row[1]
+        else:
+            begin_r = cut_row
+            end_r = len(self)
+        if isinstance(cut_col, list):
+            begin_c = cut_col[0]
+            end_c = cut_col[1]
+        else:
+            begin_c = cut_col
+            end_c = len(self.matrix[0])
+        self.matrix = self.matrix[begin_r:end_r]
+        for i in range(len(self)):
+            self.matrix[i][:] = self.matrix[i][begin_c:end_c]
+        return res
+
     '''
     相比于numpy我采用了在平日里用起来更多的（也是更加粗暴的）写法，尽管这并不符合python编程标准，但实用主义至上。
     你可以用它直接对原数组进行转置操作，同样也可以选择调用Operation中的transposition()来获得其转置的一个复制，而保证原矩阵不变
@@ -234,7 +294,6 @@ class Matrix:
             for n in range(len(self.matrix)):
                 res[i].append(self.matrix[n][i])
         self.matrix = res
-        return self
 
     '''
     你可以使用这个copy来创建一份复制，当然deep_copy或是shallow_copy都可，在这里相当于执行了一次deep_copy
@@ -243,5 +302,5 @@ class Matrix:
     @property
     def copy(self):
         temp = Matrix()
-        temp.matrix = self.matrix
+        temp.matrix = copy.deepcopy(self.matrix)
         return temp

@@ -1,6 +1,4 @@
 # pymatrix
-一个python3的库，自己在闲余时间写着玩的.....（毕竟不是计算机专业学生，能力有限水平一般。
-（目前1.0.0版本还未开发完整，只是备份,食用方法：在python根目录的lib下的site-packages中创建一个文件夹，把这几个文件导进去，import 文件夹名 就好）
 
 此库是作者在闲余时间中抽空写出来的一个对matrix服务的库，与numpy中的matrix略有
 不同，也是作者对自己的一种锻炼。
@@ -15,9 +13,13 @@
 
 <a href='#operation'>运算器：Operation</a>
 
+<a href='#Read'>读取csv: xlsx</a>
+
+<a href='#spical'>特殊处理</a>
+
 <a href='#abnormalConditions'>常见异常处理</a>
 
-版本：V 1.0.0（不稳定）（2019/12/18更新）
+版本：V 1.0.0（不稳定）（2019/1/13更新）
 
 
 <a href='#history'>历史版本及更新</a>
@@ -25,13 +27,21 @@
 以下是作者的扯淡：
 
 > 当前版本是第一个版本，也是极其相当不稳定的，部分方法逻辑上的不足与异常处理的
-一团糟就足以说明问题（当然还有就是这个文档的不足也是其中之一），不过这也是我爱好所致，
+一团糟就足以说明问题（当然还有就是这个文档的不足也是其中之一）。不过这也是我爱好所致，
 因此无法保证稳定更新，但肯定会更新的（因为我确实有可能用上这个，之前觉得创建一个矩阵太麻烦为啥不自己写一个）。
 >
 > 当然了，我也不认为有超过一只手能数过来的人会真正看到或是使用这个库或是这篇文档，
 如果真有人用这个库或者看这篇文档了，那么
 >
 > 我会在以后版本会补全docstrings和优化文档的！sen mi ma sai~
+>
+> 日志：由于程序问题，目前将csv转换成matrix的模块运行效率相当低，这个还需在后续版本改进。
+>
+> 日志：由于作者本人自己的水平有限，因此很多地方无法做到与专业框架相比的条序性。
+> 
+> 在发布前想说的话：这是我第一次编写一个完整的“库”，很多东西还需要学习，一起进步努力吧。
+>
+> 若发现在使用过程中存在BUG请致信614756824@qq.com或hityourmindtg@163.com
 
 <a name='Matrix'></a>
 ## Matrix
@@ -46,6 +56,8 @@ copy()方法。每个Matrix对象所包含的矩阵遵循了numpy中的矩阵的
 
 此类的对象的迭代将是按行从上到下，从左到右依次迭代其中的值。
 
+在获取此类对的长度（维度）时直接使用len()即可。
+
 <a href='#1'>zeros()方法</a>&emsp;&emsp;
 <a href='#2'>full()方法</a>&emsp;&emsp;
 <a href='#3'>get_matrix()方法</a>&emsp;&emsp;
@@ -55,7 +67,12 @@ copy()方法。每个Matrix对象所包含的矩阵遵循了numpy中的矩阵的
 <a href='#sub'>矩阵之间的减法</a>&emsp;&emsp;
 <a href='#mul'>矩阵之间的乘法</a>&emsp;&emsp;
 <a href='#transposition'>矩阵转置</a>&emsp;&emsp;
-<a href='#square'>square()方法</a>
+<a href='#square'>square()方法</a>&emsp;&emsp;
+<a href='#loc'>查找矩阵中的值</a>
+
+<a href='#locr'>抽取矩阵中的某一行</a>&emsp;&emsp;
+<a href='#locl'>抽取矩阵中的某一列</a>&emsp;&emsp;
+<a href='#cut'>切片</a>&emsp;&emsp;
 
 <a name='1'></a>
 #### zeros()
@@ -181,6 +198,82 @@ n ^ 2的列表，否则超出部分将被裁剪。若只有num\_list参数，则
         4   5   1
         1   1   1
         
+<a name='loc'></a>
+#### 查找矩阵中的值loc()
+
+在矩阵m：
+
+1&emsp;&emsp;2&emsp;&emsp;3
+
+4&emsp;&emsp;5&emsp;&emsp;6
+
+7&emsp;&emsp;8&emsp;&emsp;9
+
+中，使用loc方法可获得某一特定的值（需要正确的行列坐标）：
+
+    y = m.loc(0, 1)  # y = 2
+    
+<a name='locr'></a>
+#### 抽取矩阵的某一行locr()
+
+格式如同loc,只需要提供正确的行数即可：
+
+    y = m.locr(3)  # y = [7,8,9]
+    
+<a name='locl'></a>
+#### 抽取矩阵中某一列locl()
+
+格式如同locr,传入列数
+
+    y = m.locl(2)  # y = [2,5,8]
+    
+`无论是loc还是locr或locl都不会对原矩阵造成影响`
+
+<a name='cut'></a>
+#### 切片cut()
+    
+使用切片方法可以快速对矩阵进行形同numpy的切片方法，但与numpy矩阵的切片略有不同。
+不同于numpy该方法会直接对原矩阵进行修改，而返回修改原矩阵（省去在操作前拷贝的步骤）。
+
+
+> pymatrix.Matrix.cut(rows, cols)
+
+其中rows, cols都为不为空的列表或是一个不超过矩阵总长的int值，这里以x矩阵
+
+1&emsp;&emsp;2&emsp;&emsp;3
+
+4&emsp;&emsp;5&emsp;&emsp;6
+
+7&emsp;&emsp;8&emsp;&emsp;9
+
+矩阵为例，直接举几个例子：
+
+    y = x.cut([0, 2], [1, 3])
+    print(y)
+    z = y.cut(2, 1)  # 等价于z = y.cut([2, 3], [1, 3])
+    print(x)
+    print(y)
+    print(z)
+    ans:    
+        1    2    3
+        4    5    6
+        7    8    9
+    
+    
+        2    3
+        5    6
+    
+    
+        8    9
+    
+    
+        1    2    3
+        4    5    6
+        7    8    9
+        
+这样操作起来确实非常奇怪，所以在Operation中会有不对原矩阵进行切片的方法。
+（因为我想保证在Matrix中所有方法是会对原矩阵产生影响的）
+
 <a name='Spmatrix'></a>
 ## Spmatrix
 
@@ -188,16 +281,18 @@ Spmatrix是Matrix的一个子类，其主要作用是创建一些特殊矩阵来
 Matrix就像橡皮泥一样你需要自己捏成一个成像，而Spmatrix只需要输入相应的参数，
 就能创建一个“预设”的矩阵。
 
-<a href='#sparse'>稀疏矩阵</a>
+<a href='#sparse'>稀疏矩阵</a>&emsp;&emsp;
+<a href='#uper_ting'>上三角形矩阵</a>&emsp;&emsp;
+<a href='#three'>三对角矩阵</a>
 
 <a name='sparse'></a>
 #### 稀疏矩阵sparse()
 
 你可以创造一个n x n的稀疏矩阵，稀疏矩阵的非零值为1-9的随机数字，而矩阵的稀疏程度
-默认为0.1（只有不超过占比0.1的元素值为非零整数），这个参数可以自定义，
+默认为0.9（只有不超过占比0.1的元素值为非零整数），这个参数可以自定义，
 但不能低于0.7。
 
-> sparse(n, sparse_num=0.7)
+> sparse(n, sparse_num=0.9)
 
 例如：
 
@@ -213,6 +308,64 @@ Matrix就像橡皮泥一样你需要自己捏成一个成像，而Spmatrix只需
         0   0   9   0   0   0
         0   0   0   0   0   1
         
+<a name='uper_ting'></a>
+#### 上三角形矩阵
+
+> uper_ting(n, model=1)
+
+参数：n为创造出一个n x n的矩阵，并用1来填充，model有三个参数：1， 2， 3。分别对应创造的矩阵为：
+
+model=1(n = 3):
+
+1&emsp;&emsp;1&emsp;&emsp;1
+
+1&emsp;&emsp;1&emsp;&emsp;0
+
+1&emsp;&emsp;0&emsp;&emsp;0
+
+model=2:
+
+1&emsp;&emsp;1&emsp;&emsp;1
+
+0&emsp;&emsp;1&emsp;&emsp;1
+
+0&emsp;&emsp;0&emsp;&emsp;1
+
+model=3:
+
+0&emsp;&emsp;0&emsp;&emsp;1
+
+0&emsp;&emsp;1&emsp;&emsp;1
+
+1&emsp;&emsp;1&emsp;&emsp;1
+
+目前还无法控制斜边上的元素值，若有需要还需要一个一个修改（直接修改Matrix.matrix)。
+
+<a name='three'></a>
+#### 三对角矩阵
+
+> Spmatrix.three_digonal(n, datalist=None)
+
+使用该方法可以快速创建一个n x n的三对角矩阵，若传入datalist参数，则将以datalist填充非零值，
+否则填充1（当datalist的长度过短时剩下的空位也会被1填充）。
+
+所填入的n的值必须大于等于3，否则会报错。
+
+    s1.three_digonal(3)
+    s2.three_digonal(3, [1, 2, 3, 4, 5, 6, 7])
+    print(s1)
+    print(s2)
+    
+    ans:
+        1    1    0
+        1    1    1
+        0    1    1
+        
+        1    2    0
+        3    4    5
+        0    6    7
+
+这里实质上会修改datalist传入的参数！所以如果在后面还要用到该参数时要小心！
 
 <a name='operation'></a>
 ## Operation
@@ -224,7 +377,11 @@ Matrix就像橡皮泥一样你需要自己捏成一个成像，而Spmatrix只需
 > op = pymatrix.Operation()
 
 <a href='#mul'>矩阵乘法</a>&emsp;&emsp;
-<a href='#trans'>矩阵转置</a>
+<a href='#trans'>矩阵转置</a>&emsp;&emsp;
+<a href='#det'>求解行列式</a>&emsp;&emsp;
+<a href='#qiepian'>矩阵的切片</a>&emsp;&emsp;
+<a href='#adjoint'>矩阵的伴随矩阵</a>&emsp;&emsp;
+<a href='#inverse'>矩阵的逆矩阵</a>
 
 <a name='mul'></a>
 #### 矩阵乘法
@@ -253,6 +410,143 @@ Matrix就像橡皮泥一样你需要自己捏成一个成像，而Spmatrix只需
 该矩阵转置与Matrix类中的转置效果一致，只不过它不会影响到被转置的矩阵，同时
 返回一个结果矩阵(Matrix)。
 
+<a name='det'></a>
+#### 求解行列式
+
+> res = determinant(mat)
+
+将一个n x n的Matrix对象（矩阵）传入determinant，返回这个矩阵求行列式的值。
+
+<a name='qiepian'></a>
+#### cut()
+
+使用Operation.cut()可以在不对原矩阵进行操作的情况下获得该矩阵的切片，
+其参数与Matrix.cut()并无差别。
+
+> Operation.cut(matrix, rows, cols)
+
+同样，它返回的是一个Matrix矩阵
+
+    x = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    y = Operation.cut(x, [0, 2], 1)
+    print(x)
+    print(y)
+    
+    ans:
+        1    2    3
+        4    5    6
+        7    8    9
+    
+    
+        2    3
+        5    6
+        
+<a name='adjoint'></a>
+#### 矩阵的伴随矩阵
+
+> Operation.adjoint(mat)
+
+使用该方法可以获得矩阵mat的一个伴随矩阵。
+例：
+
+    m = Matrix([[-2, 1], [4, -3]])  # 你当然可以使用这种方式来创建一个矩阵
+    res = Operation.adjoint(m)
+    print(res)
+    
+    ans:
+        -3   -4
+        -1   -2
+        
+
+<a name='inverse'></a>
+#### 矩阵的逆矩阵
+
+> Operation.inverse(mat, acc=2)
+
+使用该方法可以获得矩阵mat的一个逆矩阵，如果它存在的话。
+且所有元素的精确度默认为为小数点后两位，可以通过传入acc参数来手动修改。
+例：
+
+    m = Matrix([[-2, 1], [4, -3]])
+    res = Operation.inverse(m)
+    print(res)
+    
+    ans:
+        -1.5 -0.5
+        -2.0 -1.0
+
+<a name='Read'></a>
+## xlsx——读取一个csv并将其中的数据转换成一个Matrix对象
+
+在使用时务必先导入（仅仅导入pymatrix是不够的，因为其中还使用了pandas的方法）
+
+> from pymatrix.xlsx import *
+
+若在此之前没有安装pandas库的话，会报错并阻止pymatrix.xlsx的导入
+（但不影响其他模块的使用）
+
+<a href='#open_csv'>open\_csv</a>&emsp;&emsp;
+<a href='#wirte_csv'>wirte\_csv</a>
+
+
+<a name='open_csv'></a>
+#### open_csv
+
+这个方法会打开一个csv文档，然后将其转换成一个Matrix矩阵。
+
+**注意：** 若该csv文档中的数据不是连续的，那么在空余部分会以nan填充
+（就像在pandas.read_csv那样）。
+
+> xlsx.open_csv(path, header=None)
+
+path即为该文件的绝对地址（或相对地址，不过这里推荐使用绝对地址）
+header属性则是决定是否读取表头（或将第i行作为表头读取）。
+
+但因为Matrix没有“表头”这个概念，因此将其理解为一个“切片”也无妨。
+（若header为0，则矩阵第一行对应csv文件实质上是第二行）
+
+<a name='wirte_csv'>wirte_csv</a>
+#### wirte_csv
+
+这个方法将会将一个Matrix矩阵存放到指定目录和名字的csv文件中：
+
+> xlsx.wirte_csv(matrix, path, name=None, header=None)
+
+其中matrix用来传递需要写入csv的matrix矩阵，path则是csv文件保存的绝对路径。
+name则是文件的名字，若不填则以当前日期（精确到秒）来命名：
+例如：20200101095812.csv。
+header为表头，若不填则默认为从0开始递增数列。
+
+<a name='spical'></a>
+## 特殊处理
+
+特殊处理并没有用类封装，对应的要使用它们还必须专门导入，
+因为如果你没有安装其他相关的依赖库那么你将没法正常使用这些方法。
+
+<a href='#topandas'>将Matrix对象转换为pandas.DataFrame对象</a>&emsp;&emsp;
+<a href='#tonumpy'>将Matrix对象转换为numpy.ndarry对象</a>
+
+<a name='topandas'></a>
+#### 转换为DataFrame对象
+
+> from pymatrix.topandas import topd
+
+先将topd方法导入，然后将想要转换的矩阵填入即可。
+在填入时可以选择是否填写header属性，（表头）默认则为从0开始的递增数列。
+
+> topd(matrix, header=None)  # return a DataFrame object
+
+<a name='tonumpy'></a>
+#### 转换为numpy.ndarry对象（numpy矩阵）
+
+使用python进行数据分析也好，科学计算也好，总是要使用numpy来作为矩阵计算的库。
+同时其他形如opency等优秀的库其主要输出对象甚至都是numpy矩阵，
+因此这里也提供向numpy转换的方法。
+
+> from pymatrix.tonumpy import tonp
+>
+> tonp(matrix)  # return a ndarry
+
 <a name='abnormalConditions'></a>
 ## 常见异常处理
 
@@ -269,6 +563,8 @@ Matrix就像橡皮泥一样你需要自己捏成一个成像，而Spmatrix只需
 <a name='history'></a>
 ## 历史版本及更新内容
 
-#### 2019/12/18 V 1.0.0：
+#### 2019/1/13 V 1.0.0：（开发周期大概有一个半月）
 
 > pymatrix诞生
+>
+> 其中还有一些自己写的小东西没有在文档中写出，可以通过阅读源码来轻松获得相关信息。
