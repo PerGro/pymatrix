@@ -40,11 +40,11 @@ class Matrix:
         print()
         for i in range(len(self.matrix)):
             if isinstance(self.matrix[i], int):
-                print('%5s' % self.matrix[i], end='')
+                print('%8s' % self.matrix[i], end='')
                 # print(self.matrix[i], end=' ')
             else:
                 for n in range(len(self.matrix[i])):
-                    print('%5s' % self.matrix[i][n], end='')
+                    print('%8s' % self.matrix[i][n], end='')
                     # print(self.matrix[i][n], end=' ')
             print()
         return ''
@@ -244,6 +244,16 @@ class Matrix:
             for n in range(len(data_stream[i])):
                 temp.append(data_stream[i][n])
             res.append(temp)
+            # if isinstance(data_stream[i], int):  # 问题在这
+            #     temp.append(data_stream[i])
+            #     res.extend(temp)
+            # else:
+            #     for n in range(len(data_stream[i])):
+            #         temp.append(data_stream[i][n])
+            #     res.append(temp)
+        # if isinstance(res[0], int):  # 还有这
+        #     box = []
+        #     res = box.append(res)
         self.matrix = tuple(res)
         return self.matrix
 
@@ -304,3 +314,27 @@ class Matrix:
         temp = Matrix()
         temp.matrix = copy.deepcopy(self.matrix)
         return temp
+
+
+    def reshape(self, rows, cols, lister=None):
+        if lister and len(lister) / rows != cols:
+            print('can\'t reshape a list with wrong size')
+        counter = 0
+        if lister is not None:
+            self.matrix = []
+            for i in range(rows):
+                self.matrix.append([])
+                for j in range(cols):
+                    self.matrix[i].append(lister[counter])
+                    counter += 1
+            self.matrix = tuple(self.matrix)
+        if lister is None:
+            temp = []
+            for nums in self:
+                temp.append(nums)
+            self.matrix = []
+            for i in range(rows):
+                self.matrix.append([])
+                for j in range(cols):
+                    self.matrix[i].append(temp[counter])
+                    counter += 1

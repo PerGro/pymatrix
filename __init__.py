@@ -7,7 +7,7 @@ from .specialmatrix import *
 from .abnormalConditions import *
 
 __all__ = ['matrix', 'abnormalConditions', '__version__', 'operation', 'specialmatrix', 'Matrix', 'Spmatrix',
-           'Operation']
+           'Operation', 'complex']
 
 
 '''

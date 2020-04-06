@@ -5,6 +5,9 @@ from pymatrix.lib.nummatrix import NumMatrix
 
 
 class MagicMatrix(Matrix):
+    def __init__(self):
+        super().__init__()
+
     def __putr(self, mat2):
         for i in range(len(mat2.matrix)):
             self.matrix[i].extend(mat2.matrix[i])
@@ -16,7 +19,7 @@ class MagicMatrix(Matrix):
         self.matrix = tuple(temp)
 
     @staticmethod
-    def love(num):
+    def love(num, printer=None):
         lover = MagicMatrix()
         op = assistfuction.Functions()
         one = Spmatrix()
@@ -53,7 +56,9 @@ class MagicMatrix(Matrix):
                     lover.matrix[i][j] = ' '
                 else:
                     lover.matrix[i][j] = u'♥'
-        print('\033[31m', lover, '\033[0m')
+        if printer is not None:
+            print('\033[31m', lover, '\033[0m')
+        return lover.copy
 
     @staticmethod
     def draw(num, rgb=None):

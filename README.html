@@ -304,17 +304,20 @@ img {
 <p><a href='#Read'>读取csv: xlsx</a></p>
 <p><a href='#spical'>特殊处理</a></p>
 <p><a href='#abnormalConditions'>常见异常处理</a></p>
-<p>版本：V 1.0.0（不稳定）（2019/12/18更新）</p>
+<p>版本：V 1.0.1（2020/1/14更新）</p>
 <p><a href='#history'>历史版本及更新</a></p>
 <p>以下是作者的扯淡：</p>
 <blockquote>
 <p>当前版本是第一个版本，也是极其相当不稳定的，部分方法逻辑上的不足与异常处理的
-一团糟就足以说明问题（当然还有就是这个文档的不足也是其中之一），不过这也是我爱好所致，
+一团糟就足以说明问题（当然还有就是这个文档的不足也是其中之一）。不过这也是我爱好所致，
 因此无法保证稳定更新，但肯定会更新的（因为我确实有可能用上这个，之前觉得创建一个矩阵太麻烦为啥不自己写一个）。</p>
 <p>当然了，我也不认为有超过一只手能数过来的人会真正看到或是使用这个库或是这篇文档，
 如果真有人用这个库或者看这篇文档了，那么</p>
 <p>我会在以后版本会补全docstrings和优化文档的！sen mi ma sai~</p>
-<p>日志：由于程序问题，目前将csv转换成matrix的模块运行效率相当低，这个还需在后续版本改进</p>
+<p>日志：由于程序问题，目前将csv转换成matrix的模块运行效率相当低，这个还需在后续版本改进。</p>
+<p>日志：由于作者本人自己的水平有限，因此很多地方无法做到与专业框架相比的条序性。</p>
+<p>在发布前想说的话：这是我第一次编写一个完整的“库”，很多东西还需要学习，一起进步努力吧。</p>
+<p>若发现在使用过程中存在BUG请致信614756824@qq.com或hityourmindtg@163.com</p>
 </blockquote>
 <p><a name='Matrix'></a></p>
 <h2>Matrix</h2>
@@ -339,7 +342,8 @@ copy()方法。每个Matrix对象所包含的矩阵遵循了numpy中的矩阵的
 <a href='#loc'>查找矩阵中的值</a></p>
 <p><a href='#locr'>抽取矩阵中的某一行</a>&emsp;&emsp;
 <a href='#locl'>抽取矩阵中的某一列</a>&emsp;&emsp;
-<a href='#cut'>切片</a>&emsp;&emsp;</p>
+<a href='#cut'>切片</a>&emsp;&emsp;
+<a href='#reshape'>重组</a></p>
 <p><a name='1'></a></p>
 <h4>zeros()</h4>
 <p>该方法可以快速地建造一个n x m的值全为0的矩阵，格式为zeros(n, m):</p>
@@ -504,21 +508,49 @@ ans:
 
 <p>这样操作起来确实非常奇怪，所以在Operation中会有不对原矩阵进行切片的方法。
 （因为我想保证在Matrix中所有方法是会对原矩阵产生影响的）</p>
+<p><a name='reshape'></a></p>
+<h4>重组</h4>
+<p>使用Matrix.reshape()可以帮助你快速通过一个list来创造一个对应n x m的矩阵，
+如果此时Matrix对象已经有值，那么可以快速改变该对象的维度与列向量个数（尺寸）：</p>
+<blockquote>
+<p>Matrix.reshape(rows, cols, lister=None)</p>
+</blockquote>
+<p>例如：</p>
+<pre><code>from pymatrix import Matrix
+m = Matrix()
+m.reshape(4, 4, list(range(16)))
+print(m)
+m.reshape(2, 8)
+print(m)
+
+&gt;&gt; ans:
+       0   1   2   3 
+       4   5   6   7
+       8   9  10  11
+      12  13  14  15
+
+      0   1   2   3   4   5   6   7
+      8   9  10  11  12  13  14  15 
+</code></pre>
+
 <p><a name='Spmatrix'></a></p>
 <h2>Spmatrix</h2>
 <p>Spmatrix是Matrix的一个子类，其主要作用是创建一些特殊矩阵来使用，正如你所见，
 Matrix就像橡皮泥一样你需要自己捏成一个成像，而Spmatrix只需要输入相应的参数，
 就能创建一个“预设”的矩阵。</p>
+<p>在使用Spmatrix之前也应该创建一个它的对象，但你可以使用Matrix的方法来操作这些对象。</p>
 <p><a href='#sparse'>稀疏矩阵</a>&emsp;&emsp;
 <a href='#uper_ting'>上三角形矩阵</a>&emsp;&emsp;
-<a href='#three'>三对角矩阵</a></p>
+<a href='#three'>三对角矩阵</a>&emsp;&emsp;
+<a href='#diagonal'>对角矩阵</a>&emsp;&emsp;
+<a href='#rotation_matrix'>旋转矩阵</a></p>
 <p><a name='sparse'></a></p>
 <h4>稀疏矩阵sparse()</h4>
 <p>你可以创造一个n x n的稀疏矩阵，稀疏矩阵的非零值为1-9的随机数字，而矩阵的稀疏程度
-默认为0.1（只有不超过占比0.1的元素值为非零整数），这个参数可以自定义，
+默认为0.9（只有不超过占比0.1的元素值为非零整数），这个参数可以自定义，
 但不能低于0.7。</p>
 <blockquote>
-<p>sparse(n, sparse_num=0.7)</p>
+<p>sparse(n, sparse_num=0.9)</p>
 </blockquote>
 <p>例如：</p>
 <blockquote>
@@ -577,6 +609,26 @@ ans:
 </code></pre>
 
 <p>这里实质上会修改datalist传入的参数！所以如果在后面还要用到该参数时要小心！</p>
+<p><a name='diagonal'></a></p>
+<h4>对角矩阵</h4>
+<blockquote>
+<p>Spmatrix(n, numfull=1)</p>
+</blockquote>
+<p>使用该方法可以创建一个n x n的以数字numfull填充的对角矩阵。</p>
+<p><a name='rotation_matrix'></a></p>
+<h4>旋转矩阵</h4>
+<blockquote>
+<p>Spmatrix(n, angle, vector=None)</p>
+</blockquote>
+<p>使用该方法可以获得一个二维或三维对应旋转角为angle（弧度制）的旋转矩阵。
+<strong>若是一个三维旋转矩阵，还应传入旋转轴对应的方向向量：vector</strong></p>
+<p>其中旋转的正方向遵循右手定则。</p>
+<p>示例：</p>
+<pre><code>s = Spmatrix()
+s.rotation(2, math.pi / 6)  # 获得一个旋转角为30°的旋转矩阵
+s.rotation(3, math.pi / 6, [0, 1, 0])  # 获得一个绕y轴正方向旋转30°的三维旋转矩阵。
+</code></pre>
+
 <p><a name='operation'></a></p>
 <h2>Operation</h2>
 <p>此类承包了对于Matrix类的所有非加减乘的运算，往往你需要实例化一个此类的对象，然后
@@ -647,14 +699,34 @@ ans:
 <blockquote>
 <p>Operation.adjoint(mat)</p>
 </blockquote>
-<p>使用该方法可以获得矩阵mat的一个伴随矩阵。</p>
+<p>使用该方法可以获得矩阵mat的一个伴随矩阵。
+例：</p>
+<pre><code>m = Matrix([[-2, 1], [4, -3]])  # 你当然可以使用这种方式来创建一个矩阵
+res = Operation.adjoint(m)
+print(res)
+
+ans:
+    -3   -4
+    -1   -2
+</code></pre>
+
 <p><a name='inverse'></a></p>
 <h4>矩阵的逆矩阵</h4>
 <blockquote>
 <p>Operation.inverse(mat, acc=2)</p>
 </blockquote>
 <p>使用该方法可以获得矩阵mat的一个逆矩阵，如果它存在的话。
-且所有元素的精确度默认为为小数点后两位，可以通过传入acc参数来手动修改。</p>
+且所有元素的精确度默认为为小数点后两位，可以通过传入acc参数来手动修改。
+例：</p>
+<pre><code>m = Matrix([[-2, 1], [4, -3]])
+res = Operation.inverse(m)
+print(res)
+
+ans:
+    -1.5 -0.5
+    -2.0 -1.0
+</code></pre>
+
 <p><a name='Read'></a></p>
 <h2>xlsx——读取一个csv并将其中的数据转换成一个Matrix对象</h2>
 <p>在使用时务必先导入（仅仅导入pymatrix是不够的，因为其中还使用了pandas的方法）</p>
@@ -671,7 +743,7 @@ ans:
 <p><strong>注意：</strong> 若该csv文档中的数据不是连续的，那么在空余部分会以nan填充
 （就像在pandas.read_csv那样）。</p>
 <blockquote>
-<p>xlsx.open_csv(path, header=None)</p>
+<p>xlsx.open<em>csv(path, header=None, index=None, sheet</em>name=None)</p>
 </blockquote>
 <p>path即为该文件的绝对地址（或相对地址，不过这里推荐使用绝对地址）
 header属性则是决定是否读取表头（或将第i行作为表头读取）。</p>
@@ -723,9 +795,20 @@ header为表头，若不填则默认为从0开始递增数列。</p>
 </blockquote>
 <p><a name='history'></a></p>
 <h2>历史版本及更新内容</h2>
-<h4>2019/12/18 V 1.0.0：</h4>
+<h4>2020/1/13 V 1.0.0：（开发周期大概有一个半月）</h4>
 <blockquote>
 <p>pymatrix诞生</p>
+<p>其中还有一些自己写的小东西没有在文档中写出，可以通过阅读源码来轻松获得相关信息。</p>
+</blockquote>
+<h4>2020/1/14 V 1.0.1：</h4>
+<blockquote>
+<p>向pymatrix.xlsx.xlsx.open<em>csv()中添加了参数index=None与sheet</em>name=None，使用方法与pandas.read_excel一样。</p>
+<p>修改了文档中时间错误的问题</p>
+<p>修改了MagicMatrix.love()，现在可以返回一个矩阵用来储存做好的“爱心矩阵”。</p>
+<p>m = MagicMatrix.love(2)  # 在显示“爱心矩阵的同时”也将其储存到了变量m中，方便后面进行进一步操作。</p>
+<p>但同时我去掉了自动输出的设置，若要自动输出请加入参数：love(num, printer=None)将printer改为非零即可。</p>
+<p>在Spmatrix中新加diagonal()来创造对角矩阵。</p>
+<p>在Spmatrix中新加rotation()来创造一个二维或三维的旋转矩阵。</p>
 </blockquote>
 
 </body>

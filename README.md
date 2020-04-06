@@ -19,7 +19,7 @@
 
 <a href='#abnormalConditions'>常见异常处理</a>
 
-版本：V 1.0.0（不稳定）（2019/1/13更新）
+版本：V 1.0.1（2020/1/14更新）
 
 
 <a href='#history'>历史版本及更新</a>
@@ -73,6 +73,7 @@ copy()方法。每个Matrix对象所包含的矩阵遵循了numpy中的矩阵的
 <a href='#locr'>抽取矩阵中的某一行</a>&emsp;&emsp;
 <a href='#locl'>抽取矩阵中的某一列</a>&emsp;&emsp;
 <a href='#cut'>切片</a>&emsp;&emsp;
+<a href='#reshape'>重组</a>
 
 <a name='1'></a>
 #### zeros()
@@ -274,6 +275,33 @@ n ^ 2的列表，否则超出部分将被裁剪。若只有num\_list参数，则
 这样操作起来确实非常奇怪，所以在Operation中会有不对原矩阵进行切片的方法。
 （因为我想保证在Matrix中所有方法是会对原矩阵产生影响的）
 
+<a name='reshape'></a>
+#### 重组
+
+使用Matrix.reshape()可以帮助你快速通过一个list来创造一个对应n x m的矩阵，
+如果此时Matrix对象已经有值，那么可以快速改变该对象的维度与列向量个数（尺寸）：
+
+> Matrix.reshape(rows, cols, lister=None)
+
+例如：
+
+    from pymatrix import Matrix
+    m = Matrix()
+    m.reshape(4, 4, list(range(16)))
+    print(m)
+    m.reshape(2, 8)
+    print(m)
+    
+    >> ans:
+           0   1   2   3 
+           4   5   6   7
+           8   9  10  11
+          12  13  14  15
+          
+          0   1   2   3   4   5   6   7
+          8   9  10  11  12  13  14  15 
+            
+
 <a name='Spmatrix'></a>
 ## Spmatrix
 
@@ -281,9 +309,14 @@ Spmatrix是Matrix的一个子类，其主要作用是创建一些特殊矩阵来
 Matrix就像橡皮泥一样你需要自己捏成一个成像，而Spmatrix只需要输入相应的参数，
 就能创建一个“预设”的矩阵。
 
+在使用Spmatrix之前也应该创建一个它的对象，但你可以使用Matrix的方法来操作这些对象。
+
 <a href='#sparse'>稀疏矩阵</a>&emsp;&emsp;
 <a href='#uper_ting'>上三角形矩阵</a>&emsp;&emsp;
-<a href='#three'>三对角矩阵</a>
+<a href='#three'>三对角矩阵</a>&emsp;&emsp;
+<a href='#diagonal'>对角矩阵</a>&emsp;&emsp;
+<a href='#rotation_matrix'>旋转矩阵</a>&emsp;&emsp;
+<a href='#rotation_enler'>旋转矩阵——欧拉角模式</a>
 
 <a name='sparse'></a>
 #### 稀疏矩阵sparse()
@@ -367,6 +400,45 @@ model=3:
 
 这里实质上会修改datalist传入的参数！所以如果在后面还要用到该参数时要小心！
 
+<a name='diagonal'></a>
+#### 对角矩阵
+
+> Spmatrix.diagonal(n, numfull=1)
+
+使用该方法可以创建一个n x n的以数字numfull填充的对角矩阵。
+
+<a name='rotation_matrix'></a>
+#### 旋转矩阵
+
+> Spmatrix.rotation(n, angle, vector=None)
+
+使用该方法可以获得一个二维或三维对应旋转角为angle（弧度制）的旋转矩阵。
+**若是一个三维旋转矩阵，还应传入旋转轴对应的方向向量：vector**
+
+其中旋转的正方向遵循右手定则。
+
+示例：
+
+    s = Spmatrix()
+    s.rotation(2, math.pi / 6)  # 获得一个旋转角为30°的旋转矩阵
+    s.rotation(3, math.pi / 6, [0, 1, 0])  # 获得一个绕y轴正方向旋转30°的三维旋转矩阵。
+
+
+<a name='rotation_enler'></a>
+#### 旋转矩阵——欧拉角模式
+
+> Spamtrix.rotation_enler(angle_precession, angle_nutation, angle_spin, res=False, **kwargs)
+>
+> angle_precession： 进动角
+>
+> angle_nutation: 章动角
+> 
+> angle_spin: 自转角
+>
+> 其他可填参数：z_vector:z轴单位向量坐标，默认为(0, 0, 1)， x_vector:x轴单位向量坐标，默认为(1, 0, 0)， rounder:结果保留小数位数
+
+> 若res参数为真，返回一个Spmatrix对象（Matrix矩阵），否则返回一个由矩阵元素构成的数列。
+
 <a name='operation'></a>
 ## Operation
 
@@ -381,7 +453,9 @@ model=3:
 <a href='#det'>求解行列式</a>&emsp;&emsp;
 <a href='#qiepian'>矩阵的切片</a>&emsp;&emsp;
 <a href='#adjoint'>矩阵的伴随矩阵</a>&emsp;&emsp;
-<a href='#inverse'>矩阵的逆矩阵</a>
+<a href='#inverse'>矩阵的逆矩阵</a>&emsp;&emsp;
+<a href='#feature_matrix'>矩阵的特征值与特征向量</a>
+
 
 <a name='mul'></a>
 #### 矩阵乘法
@@ -475,6 +549,17 @@ model=3:
         -1.5 -0.5
         -2.0 -1.0
 
+<a name='feature_matrix'></a>
+#### 矩阵的特征值与特征向量
+
+> Operation.feature_matrix(matrix, dimension, rou=3, theta=None, eigenvector=None, e=0.01)
+
+其中matrix为原始矩阵，dimension为所对应的维度，rou为结果保留小数位数，e为阈值，用来控制精度，e越小，精度越大，但速度越慢。
+其余参数则无需改动。
+
+该函数的返回值为一个字典res，其中res['eigenvalue']为特征值，是一个Matrix，res['eigenvector']为特征向量，是一个Matrix。
+
+
 <a name='Read'></a>
 ## xlsx——读取一个csv并将其中的数据转换成一个Matrix对象
 
@@ -497,7 +582,7 @@ model=3:
 **注意：** 若该csv文档中的数据不是连续的，那么在空余部分会以nan填充
 （就像在pandas.read_csv那样）。
 
-> xlsx.open_csv(path, header=None)
+> xlsx.open_csv(path, header=None, index=None, sheet_name=None)
 
 path即为该文件的绝对地址（或相对地址，不过这里推荐使用绝对地址）
 header属性则是决定是否读取表头（或将第i行作为表头读取）。
@@ -563,8 +648,30 @@ header为表头，若不填则默认为从0开始递增数列。
 <a name='history'></a>
 ## 历史版本及更新内容
 
-#### 2019/1/13 V 1.0.0：（开发周期大概有一个半月）
+#### 2020/1/13 V 1.0.0：（开发周期大概有一个半月）
 
 > pymatrix诞生
 >
 > 其中还有一些自己写的小东西没有在文档中写出，可以通过阅读源码来轻松获得相关信息。
+
+#### 2020/1/14 V 1.0.1：
+
+> 向pymatrix.xlsx.xlsx.open_csv()中添加了参数index=None与sheet_name=None，使用方法与pandas.read_excel一样。
+>
+> 修改了文档中时间错误的问题
+>
+> 修改了MagicMatrix.love()，现在可以返回一个矩阵用来储存做好的“爱心矩阵”。
+>
+> m = MagicMatrix.love(2)  # 在显示“爱心矩阵的同时”也将其储存到了变量m中，方便后面进行进一步操作。
+>
+> 但同时我去掉了自动输出的设置，若要自动输出请加入参数：love(num, printer=None)将printer改为非零即可。
+>
+> 在Spmatrix中新加diagonal()来创造对角矩阵。
+>
+> 在Spmatrix中新加rotation()来创造一个二维或三维的旋转矩阵。
+
+#### 2020/4/3 V 1.0.5
+
+> 更新了Spmatrix，增加了欧拉角为坐标的旋转矩阵。
+>
+> 更新了Operation，增加了求解特征值与特征向量的函数。

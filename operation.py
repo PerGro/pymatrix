@@ -1,6 +1,10 @@
 from .matrix import Matrix
 from .abnormalConditions import *
 from .assistfuction import Functions
+import numpy as np
+import sys
+
+sys.setrecursionlimit(1000000000)
 
 
 class Operation(Functions):
@@ -100,6 +104,90 @@ class Operation(Functions):
             print('this matrix do not have its inverse matrix')
             return
         temp = Operation.transposition(Operation.adjoint(mat))
-        return Matrix.square(Matrix(), len(mat), Functions.split_matrix_thorough(temp * round(1/det, acc)))
+        return Matrix.square(Matrix(), len(mat), Functions.split_matrix_thorough(temp * round(1 / det, acc)))
+
+    @staticmethod
+    def isrank(mat1, mat2):
+        pass
+
+    @staticmethod
+    def rotation(ang):
+        pass
+
+    @staticmethod
+    def __diagonal(dimension, fillnum):
+        temp = []
+        for i in range(dimension):
+            temp.append([])
+            for j in range(dimension):
+                temp[i].append(0)
+            temp[i].pop(i)
+            temp[i].insert(i, fillnum)
+        m = Matrix(temp)
+        return m
+
+    def feature_matrix(self, matrix, dimension, rou=3, theta=None, eigenvector=None, e=0.01):  # 不考虑无需寻找的情况
+        max_num = 0
+        p = 0
+        q = 0
+        for i in range(dimension):
+            for j in range(dimension):
+                if j > i and abs(matrix.matrix[i][j]) > max_num:
+                    max_num = abs(matrix.matrix[i][j])
+                    p = i
+                    q = j
+        # print(p, q)
+        if matrix.matrix[q][q] - matrix.matrix[p][p]:
+            theta = (np.arctan(-2 * matrix.matrix[p][q]) / (matrix.matrix[q][q] - matrix.matrix[p][p])) / 2
+        else:
+            theta = np.arcsin(1)
+        # print(theta)
+        if eigenvector is None:
+            eigenvector = self.__diagonal(dimension, 1)
+        # diag_matrix = self.__diagonal(dimension, 1)
+        # diag_matrix.matrix[p][p] = round(np.cos(theta), rou)
+        # diag_matrix.matrix[p][q] = round(-np.sin(theta), rou)
+        # diag_matrix.matrix[q][p] = round(np.sin(theta), rou)
+        # diag_matrix.matrix[q][q] = round(np.cos(theta), rou)
+        temp_a_matrix_pp = matrix.matrix[p][p] * np.cos(theta) ** 2 + matrix.matrix[q][q] * np.sin(theta) ** 2 + 2 * matrix.matrix[p][q] * np.cos(theta) * np.sin(theta)
+        temp_a_matrix_qq = matrix.matrix[p][p] * np.sin(theta) ** 2 + matrix.matrix[q][q] * np.cos(theta) ** 2 - 2 * matrix.matrix[p][q] * np.cos(theta) * np.sin(theta)
+        temp_a_matrix_pq = 0.5 * (matrix.matrix[q][q] - matrix.matrix[p][p]) * np.sin(2 * theta) + matrix.matrix[p][q] * np.cos(2 * theta)
+        temp_a_matrix_qp = temp_a_matrix_pq
+        matrix.matrix[p][p] = temp_a_matrix_pp
+        matrix.matrix[q][q] = temp_a_matrix_qq
+        matrix.matrix[p][q] = temp_a_matrix_pq
+        matrix.matrix[q][p] = temp_a_matrix_qp
+        for i in range(dimension):
+            if i != p and i != q:
+                temp_num = matrix.matrix[i][p]
+                matrix.matrix[i][p] = matrix.matrix[i][q] * np.sin(theta) + temp_num * np.cos(theta)
+                matrix.matrix[i][q] = matrix.matrix[i][q] * np.cos(theta) - temp_num * np.sin(theta)
+        for j in range(dimension):
+            if j != p and j != q:
+                temp_num = matrix.matrix[p][j]
+                matrix.matrix[p][j] = matrix.matrix[q][j] * np.sin(theta) + temp_num * np.cos(theta)
+                matrix.matrix[q][j] = matrix.matrix[q][j] * np.cos(theta) - temp_num * np.sin(theta)
+        for i in range(dimension):
+            temp = eigenvector.matrix[i][p]
+            eigenvector.matrix[i][p] = eigenvector.matrix[i][q] * np.sin(theta) + temp * np.cos(theta)
+            eigenvector.matrix[i][q] = eigenvector.matrix[i][q] * np.cos(theta) - temp * np.sin(theta)
+        # 开始迭代
+        if max_num <= e:
+            eigenvalues = []  # 特征向量
+            for i in range(dimension):
+                eigenvalues.append(matrix.matrix[i][i])
+            for i in range(dimension):
+                for j in range(dimension):
+                    eigenvector.matrix[i][j] = round(eigenvector.matrix[i][j], rou)
+            for i in range(len(eigenvalues)):
+                eigenvalues[i] = round(eigenvalues[i], rou)
+            eigenvalues = Matrix([eigenvalues])
+            eigenvalues.reshape(3, 1)
+            res = {'eigenvalues': eigenvalues, 'eigenvector': eigenvector}
+            # print(res)
+            return res
+        else:
+            return self.feature_matrix(matrix, dimension, eigenvector=eigenvector)
 
 
+        

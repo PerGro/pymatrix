@@ -84,6 +84,17 @@ class Functions:
                 Functions.perm(num_list, res_list, current + 1)
                 num_list[i], num_list[current] = num_list[current], num_list[i]
 
+    @staticmethod
+    def scan_diagonal(mat_list1, mat_list2):
+        for i in range(len(mat_list1)):
+            for j in range(len(mat_list1)):
+                if mat_list1[i][j] == round(mat_list2[i][j], 0):
+                    continue
+                else:
+                    return False
+        return True
+
+
 
 
 
